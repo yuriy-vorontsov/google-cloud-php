@@ -1,4 +1,4 @@
-# Google Cloud PHP Client
+# Google Cloud PHP Client, fix for Datastore queries with offset
 > Idiomatic PHP client for [Google Cloud Platform](https://cloud.google.com/) services.
 
 [![Travis Build Status](https://travis-ci.org/GoogleCloudPlatform/google-cloud-php.svg?branch=master)](https://travis-ci.org/GoogleCloudPlatform/google-cloud-php/) [![codecov](https://codecov.io/gh/googlecloudplatform/google-cloud-php/branch/master/graph/badge.svg)](https://codecov.io/gh/googlecloudplatform/google-cloud-php)
@@ -23,9 +23,16 @@ This client supports the following Google Cloud Platform services at an [Alpha](
 If you need support for other Google APIs, please check out the [Google APIs Client Library for PHP](https://github.com/google/google-api-php-client).
 
 ## Quick Start
-
-```sh
-$ composer require google/cloud
+```
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/yuriy-vorontsov/google-cloud-php"
+        }
+    ],
+    "require": {
+        "google/cloud": "dev-master"
+    },
 ```
 
 ## Google BigQuery (Beta)
