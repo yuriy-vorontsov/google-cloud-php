@@ -389,8 +389,17 @@ class Operation
             'namespaceId' => $this->namespaceId
         ];
 
+        // get offset and limit
+        $queryObj = $query->queryObject();
+        $offset = ( isset( $queryObj ) && is_array( $queryObj ) && isset( $queryObj['offset'] ) ) ? $queryObj['offset'] : 0;
+        $limit = ( isset( $queryObj ) && is_array( $queryObj ) && isset( $queryObj['limit'] ) ) ? $queryObj['limit'] : false;
+
+        $cnt = 0;
+
         $moreResults = true;
         do {
+            $query->offset( $offset );
+
             $request = $options + $this->readOptions($options) + [
                 'projectId' => $this->projectId,
                 'partitionId' => $this->partitionId($this->projectId, $options['namespaceId']),
@@ -407,16 +416,31 @@ class Operation
 
                 foreach ($results as $result) {
                     yield $result;
-                }
 
-                if ($query->canPaginate() && $res['batch']['moreResults'] === 'NOT_FINISHED') {
-                    $query->start($res['batch']['endCursor']);
-                } else {
-                    $moreResults = false;
+                    $cnt++;
+                    if ( $limit !== false && $cnt >= $limit ) {
+                        $moreResults = false;
+                        break;
+                    }
                 }
+            }
+
+            if (isset($res['batch']['skippedResults'])) {
+                if ($offset - $res['batch']['skippedResults'] > 0) {
+                    $offset -= $res['batch']['skippedResults'];
+
+                } else {
+                    $offset = 0;
+                }
+            }
+
+            if ($res['batch']['moreResults'] === 'NOT_FINISHED') {
+                $query->start($res['batch']['endCursor']);
+
             } else {
                 $moreResults = false;
             }
+
         } while ($moreResults);
     }
 
